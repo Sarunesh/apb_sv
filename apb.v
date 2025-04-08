@@ -4,7 +4,7 @@
 // Output signals
 // 		penable, pselx, pwrite, paddr, pwdata
 /***********************************************************************/
-module apb(pclk, presetn, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr_rd_i, penable, pselx, pwrite, pwdata, paddr, rdata_o);
+module apb(pclk, presetn, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr_rd_i, penable, pselx, pwrite, pwdata, paddr, rdata_o, trans_err_o);
 	parameter ADDR_WIDTH = 32;
 	parameter DATA_WIDTH = 32;
 
@@ -24,6 +24,7 @@ module apb(pclk, presetn, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr_
 	output reg [ADDR_WIDTH-1:0] paddr;
 	output reg [DATA_WIDTH-1:0] pwdata;
 	output reg [DATA_WIDTH-1:0] rdata_o;		// To bridge
+	output reg trans_err_o;						// To bridge
 
 	// States
 	typedef enum bit[1:0]{
@@ -39,11 +40,12 @@ module apb(pclk, presetn, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr_
 	// Reset logic
 	always@(posedge pclk)begin							// Synchronous
 		if(!presetn)begin								// Active low reset
-			penable	<= 0;
-			pselx	<= 0;
+			penable	<= 1'b0;
+			pselx	<= 1'b0;
 			paddr	<= 32'b0;
 			pwdata	<= 32'b0;
 			rdata_o <= 32'b0;
+			trans_err_o <= 1'b0;
 			cur_state <= IDLE;
 		end
 		else begin
@@ -92,9 +94,12 @@ module apb(pclk, presetn, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr_
 					if(wr_rd_i) pwdata <= wdata_i;		// Write to peripheral
 				end
 				ACCESS:begin
-					penable <= 1'b1;
-					if(pready)							// pready & penable are HIGH
+					penable = 1'b1;
+					if(pready && penable)begin			// pready & penable are HIGH
 						rdata_o <= prdata;				// Read from peripheral
+						trans_err_o <= pslverr;			// Driving the output error signal
+														// with pslverr
+					end
 				end
 				default:begin
 					pselx	<= 1'b0;

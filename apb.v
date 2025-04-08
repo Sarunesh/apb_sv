@@ -4,7 +4,7 @@
 // Output signals
 // 		penable, pselx, pwrite, paddr, pwdata
 /***********************************************************************/
-module apb(pclk, presetn, pready, pslverr, prdata, penable, pselx, pwrite, pwdata, paddr);
+module apb(pclk, presetn, pready, pslverr, prdata, trans, penable, pselx, pwrite, pwdata, paddr);
 	parameter ADDR_WIDTH = 32;
 	parameter DATA_WIDTH = 32;
 
@@ -14,6 +14,7 @@ module apb(pclk, presetn, pready, pslverr, prdata, penable, pselx, pwrite, pwdat
 	input pready;
 	input pslverr;
 	input [DATA_WIDTH-1:0] prdata;
+	input trans;								// From bridge
 	output reg penable;
 	output reg pselx;
 	output reg pwrite;
@@ -46,24 +47,48 @@ module apb(pclk, presetn, pready, pslverr, prdata, penable, pselx, pwrite, pwdat
 	end
 
 	// Next state logic
-	always@(posedge clk)begin
+	always@(*)begin
+		case(cur_state)
+			IDLE:begin
+				if(trans) next_state <= SETUP;
+				else next_state <= IDLE;
+			end
+			SETUP:begin
+				next_state	<= ACCESS;
+			end
+			ACCESS:begin
+				if(pready)begin							// Transfer happens
+					if(trans) next_state <= SETUP;		// Subsequent transfers
+					else next_state <= IDLE;			// No more transfers
+				end
+				else begin
+					next_state <= ACCESS;
+				end
+			end
+			default:begin
+				next_state <= IDLE;
+			end
+		endcase
+	end
+
+	// Output logic
+	always@(posedge pclk)begin
 		if(presetn)begin
 			case(cur_state)
 				IDLE:begin
-					pselx <= 1'b0;
-					penable <= 1'b0;
-					if(trans) next_state <= SETUP;
-					else next_state <= IDLE;
+					pselx	<= 1'b0;
+					penable	<= 1'b0;
 				end
 				SETUP:begin
-					pselx		<= 1'b1;
-					penable		<= 1'b0;
-					next_state	<= ACCESS;
+					pselx	<= 1'b1;
+					penable	<= 1'b0;
 				end
 				ACCESS:begin
-					penable<=1'b1;
+					penable <= 1'b1;
 				end
 				default:begin
+					pselx	<= 1'b0;
+					penable	<= 1'b0;
 				end
 			endcase
 		end

@@ -4,7 +4,7 @@
 // Output signals
 // 		penable, pselx, pwrite, paddr, pwdata
 /***********************************************************************/
-module apb(pclk, presetn, pready, pslverr, prdata, trans, penable, pselx, pwrite, pwdata, paddr);
+module apb(pclk, presetn, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr_rd_i, penable, pselx, pwrite, pwdata, paddr, rdata_o);
 	parameter ADDR_WIDTH = 32;
 	parameter DATA_WIDTH = 32;
 
@@ -14,12 +14,16 @@ module apb(pclk, presetn, pready, pslverr, prdata, trans, penable, pselx, pwrite
 	input pready;
 	input pslverr;
 	input [DATA_WIDTH-1:0] prdata;
-	input trans;								// From bridge
+	input trans_i;								// From bridge
+	input [ADDR_WIDTH-1:0] addr_i;				// From bridge
+	input [DATA_WIDTH-1:0] wdata_i;				// From bridge
+	input wr_rd_i;								// From bridge
 	output reg penable;
 	output reg pselx;
 	output reg pwrite;
 	output reg [ADDR_WIDTH-1:0] paddr;
 	output reg [DATA_WIDTH-1:0] pwdata;
+	output reg [DATA_WIDTH-1:0] rdata_o;		// To bridge
 
 	// States
 	typedef enum bit[1:0]{
@@ -50,7 +54,7 @@ module apb(pclk, presetn, pready, pslverr, prdata, trans, penable, pselx, pwrite
 	always@(*)begin
 		case(cur_state)
 			IDLE:begin
-				if(trans) next_state <= SETUP;
+				if(trans_i) next_state <= SETUP;
 				else next_state <= IDLE;
 			end
 			SETUP:begin
@@ -58,7 +62,7 @@ module apb(pclk, presetn, pready, pslverr, prdata, trans, penable, pselx, pwrite
 			end
 			ACCESS:begin
 				if(pready)begin							// Transfer happens
-					if(trans) next_state <= SETUP;		// Subsequent transfers
+					if(trans_i) next_state <= SETUP;		// Subsequent transfers
 					else next_state <= IDLE;			// No more transfers
 				end
 				else begin
@@ -82,9 +86,15 @@ module apb(pclk, presetn, pready, pslverr, prdata, trans, penable, pselx, pwrite
 				SETUP:begin
 					pselx	<= 1'b1;
 					penable	<= 1'b0;
+					pwrite	<= wr_rd_i;
+					paddr	<= addr_i;
 				end
 				ACCESS:begin
 					penable <= 1'b1;
+					if(pready)begin						// pready & penable are HIGH
+						if(wr_rd_i) pwdata <= wdata_i;	// Write to peripheral
+						else rdata_o <= prdata;			// Read from peripheral
+					end
 				end
 				default:begin
 					pselx	<= 1'b0;

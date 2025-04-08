@@ -43,6 +43,7 @@ module apb(pclk, presetn, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr_
 			pselx	<= 0;
 			paddr	<= 32'b0;
 			pwdata	<= 32'b0;
+			rdata_o <= 32'b0;
 			cur_state <= IDLE;
 		end
 		else begin
@@ -88,13 +89,12 @@ module apb(pclk, presetn, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr_
 					penable	<= 1'b0;
 					pwrite	<= wr_rd_i;
 					paddr	<= addr_i;
+					if(wr_rd_i) pwdata <= wdata_i;		// Write to peripheral
 				end
 				ACCESS:begin
 					penable <= 1'b1;
-					if(pready)begin						// pready & penable are HIGH
-						if(wr_rd_i) pwdata <= wdata_i;	// Write to peripheral
-						else rdata_o <= prdata;			// Read from peripheral
-					end
+					if(pready)							// pready & penable are HIGH
+						rdata_o <= prdata;				// Read from peripheral
 				end
 				default:begin
 					pselx	<= 1'b0;

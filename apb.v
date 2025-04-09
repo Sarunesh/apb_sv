@@ -1,19 +1,24 @@
-// APB master
+// #### APB master ####
 // Input signals
-// 		pclk, presetn, pready, pslverr, prdata
+// 		pclk, preset_n, pready, pslverr, prdata
 // Output signals
 // 		penable, pselx, pwrite, paddr, pwdata
+// #### Signals from/to bridge ####
+// Input signals
+// 		trans_i, addr_i, wdata_i, wr_rd_i
+// Output signals
+// 		rdata_o, trans_err_o
 /***********************************************************************/
-module apb(pclk, presetn, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr_rd_i, penable, pselx, pwrite, pwdata, paddr, rdata_o, trans_err_o);
+module apb(pclk, preset_n, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr_rd_i, penable, pselx, pwrite, pwdata, paddr, rdata_o, trans_err_o);
 	parameter ADDR_WIDTH = 32;
 	parameter DATA_WIDTH = 32;
 
 	// Port directions
 	input pclk;
-	input presetn;
-	input pready;
-	input pslverr;
-	input [DATA_WIDTH-1:0] prdata;
+	input preset_n;
+	input pready;								// From peripheral
+	input pslverr;								// From peripheral
+	input [DATA_WIDTH-1:0] prdata;				// From peripheral
 	input trans_i;								// From bridge
 	input [ADDR_WIDTH-1:0] addr_i;				// From bridge
 	input [DATA_WIDTH-1:0] wdata_i;				// From bridge
@@ -39,7 +44,7 @@ module apb(pclk, presetn, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr_
 
 	// Reset logic
 	always@(posedge pclk)begin							// Synchronous
-		if(!presetn)begin								// Active low reset
+		if(!preset_n)begin								// Active low reset
 			penable	<= 1'b0;
 			pselx	<= 1'b0;
 			paddr	<= 32'b0;
@@ -80,7 +85,7 @@ module apb(pclk, presetn, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr_
 
 	// Output logic
 	always@(posedge pclk)begin
-		if(presetn)begin
+		if(preset_n)begin
 			case(cur_state)
 				IDLE:begin
 					pselx	<= 1'b0;

@@ -34,6 +34,7 @@ module top;
 		pclk=0; preset_n=0;
 		repeat(2)@(posedge pclk);
 		preset_n=1;
+		$value$plusargs("testcase=%s",apb_common::testcase);
 		env=new();
 		env.run();
 		#2000 $finish;

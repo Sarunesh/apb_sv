@@ -49,6 +49,7 @@ module apb(pclk, preset_n, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr
 			pselx	<= 1'b0;
 			paddr	<= 32'b0;
 			pwdata	<= 32'b0;
+			pwrite	<= 1'b0;
 			rdata_o <= 32'b0;
 			trans_err_o <= 1'b0;
 			cur_state <= IDLE;
@@ -96,14 +97,18 @@ module apb(pclk, preset_n, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr
 					penable	<= 1'b0;
 					pwrite	<= wr_rd_i;
 					paddr	<= addr_i;
-					if(wr_rd_i) pwdata <= wdata_i;		// Write to peripheral
+					if(wr_rd_i) begin
+						pwdata <= wdata_i;		// Write to peripheral
+						rdata_o <= 32'b0;
+					end
+					else pwdata <= 32'b0;
 				end
 				ACCESS:begin
-					penable = 1'b1;
-					if(pready && penable)begin			// pready & penable are HIGH
-						rdata_o <= prdata;				// Read from peripheral
-						trans_err_o <= pslverr;			// Driving the output error signal
-														// with pslverr
+					penable <= 1'b1;
+					if(pready)begin				// pready & penable are HIGH
+						if(!wr_rd_i)
+							rdata_o <= prdata;	// Read from peripheral
+						trans_err_o <= pslverr;	// Driving the output error signal with pslverr
 					end
 				end
 				default:begin

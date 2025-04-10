@@ -8,4 +8,5 @@ mailbox mon2sbd=new();
 
 class apb_common;
 	static string testcase;
+	static bit testcase_wait;
 endclass

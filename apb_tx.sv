@@ -1,18 +1,18 @@
 class apb_tx;
-	rand bit trans_i;							// From bridge
-	rand bit [ADDR_WIDTH-1:0] addr_i;			// From bridge
-	rand bit [DATA_WIDTH-1:0] wdata_i;			// From bridge
-	rand bit wr_rd_i;							// From bridge
-	rand bit pready;
-		 bit pslverr;
-		 bit [DATA_WIDTH-1:0] prdata;
-		 bit penable;
-		 bit pselx;
-		 bit pwrite;
-		 bit [ADDR_WIDTH-1:0] paddr;
-		 bit [DATA_WIDTH-1:0] pwdata;
-		 bit [DATA_WIDTH-1:0] rdata_o;			// To bridge
-		 bit trans_err_o;						// To bridge
+	rand bit trans_i;							// By tb to dut
+	rand bit [ADDR_WIDTH-1:0] addr_i;			// By tb to dut
+	rand bit [DATA_WIDTH-1:0] wdata_i;			// By tb to dut
+	rand bit wr_rd_i;							// By tb to dut
+	rand bit pready;							// By peripheral to dut
+		 bit pslverr;							// By peripheral to dut
+		 bit [DATA_WIDTH-1:0] prdata;			// By peripheral to dut
+		 bit penable;							// By dut
+		 bit pselx;								// By dut
+		 bit pwrite;							// By dut
+		 bit [ADDR_WIDTH-1:0] paddr;			// By dut
+		 bit [DATA_WIDTH-1:0] pwdata;			// By dut
+		 bit [DATA_WIDTH-1:0] rdata_o;			// To tb
+		 bit trans_err_o;						// To tb
 
 	function void print(string name="TRANSACTION");
 		$display("======================================");

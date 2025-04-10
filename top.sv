@@ -37,8 +37,10 @@ module top;
 		$value$plusargs("testcase=%s",apb_common::testcase);
 		env=new();
 		env.run();
-		#2000 $finish;
 	end
 
 	// Reports
+	initial begin
+		#200 $finish;
+	end
 endmodule

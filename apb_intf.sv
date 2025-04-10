@@ -6,6 +6,7 @@ interface apb_intf(input logic pclk, input logic preset_n);
 	logic [ADDR_WIDTH-1:0] addr_i;				// From bridge
 	logic [DATA_WIDTH-1:0] wdata_i;				// From bridge
 	logic wr_rd_i;								// From bridge
+
 	logic penable;
 	logic pselx;
 	logic pwrite;

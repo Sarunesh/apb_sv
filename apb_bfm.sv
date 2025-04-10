@@ -7,6 +7,8 @@ class apb_bfm;
 	// Constructor
 	function new();
 		vif=top.pif;
+		if(vif==null)
+			$fatal("@@@@@ Virtual interface is not connected in BFM.");
 	endfunction
 
 	// Run task
@@ -20,12 +22,13 @@ class apb_bfm;
 			else
 				drive_no_wait(tx);
 			tx.print("BFM");
+			apb_common::bfm_count++;
 		end
 	endtask
 
 	// drive tasks
 	task drive_no_wait(ref apb_tx tx);
-		$display("Inside drive_no_wait task in bfm");
+		$display("#### Inside drive_no_wait task in bfm");
 		@(posedge vif.pclk);
 		vif.trans_i	<= tx.trans_i;			// SP
 		vif.addr_i	<= tx.addr_i;			// SP
@@ -43,7 +46,7 @@ class apb_bfm;
 	endtask
 
 	task drive_wait(ref apb_tx tx);
-		$display("Inside drive_wait task in bfm");
+		$display("#### Inside drive_wait task in bfm");
 		@(posedge vif.pclk);
 		vif.trans_i	<= tx.trans_i;			// SP
 		vif.addr_i	<= tx.addr_i;			// SP

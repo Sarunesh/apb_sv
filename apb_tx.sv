@@ -16,7 +16,7 @@ class apb_tx;
 
 	function void print(string name="TRANSACTION");
 		$display("======================================");
-		$display("\tComponent name = %0s", name);
+		$display("\tComponent name = %0s Time=%0t", name, $time);
 		$display("\ttrans_i=%0b pready=%0b pslverr=%0b", trans_i, pready, pslverr);
 		$display("\tpenable=%0b pselx=%0b", penable, pselx);
 		$display("\tTransaction type = %0s", wr_rd_i ? ("Write_tx"):("Read_tx"));

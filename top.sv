@@ -41,6 +41,7 @@ module top;
 
 	// Reports
 	initial begin
-		#200 $finish;
+		wait(apb_common::gen_count == apb_common::bfm_count)
+		#100 $finish;
 	end
 endmodule

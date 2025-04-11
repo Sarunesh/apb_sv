@@ -1,5 +1,5 @@
-parameter ADDR_WIDTH = 32;
-parameter DATA_WIDTH = 32;
+parameter ADDR_WIDTH = 8;
+parameter DATA_WIDTH = 8;
 
 // Mailbox
 mailbox gen2bfm=new();
@@ -9,5 +9,7 @@ mailbox mon2sbd=new();
 class apb_common;
 	static string testcase;
 	static bit testcase_wait;
-	static int gen_count, bfm_count;
+	static int gen_count, sbd_count;
+	static int match_count, mismatch_count;
+	static int count;
 endclass

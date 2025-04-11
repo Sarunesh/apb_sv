@@ -18,8 +18,6 @@ class apb_bfm;
 			tx=new();
 			gen2bfm.get(tx);
 			drive(tx);
-			tx.print("BFM");
-			apb_common::bfm_count++;
 		end
 	endtask
 
@@ -27,10 +25,11 @@ class apb_bfm;
 	task drive(apb_tx tx);
 		$display("#### Inside drive task in bfm");
 		@(posedge vif.pclk);
-		vif.trans_i	<= tx.trans_i;			// SP
-		vif.addr_i	<= tx.addr_i;			// SP
-		vif.wr_rd_i	<= tx.wr_rd_i;			// SP
-		vif.wdata_i	<= tx.wdata_i;			// SP
+	// SETUP Phase
+		vif.trans_i	<= tx.trans_i;
+		vif.addr_i	<= tx.addr_i;
+		vif.wr_rd_i	<= tx.wr_rd_i;
+		vif.wdata_i	<= tx.wdata_i;
 		vif.pready	<= tx.pready;
 		@(posedge vif.pclk);
 		if(apb_common::testcase_wait==1)begin
@@ -45,12 +44,26 @@ class apb_bfm;
 				end
 			join
 		end
-		tx.pselx	= vif.pselx;			// AP; towards peripheral
-		tx.penable	= vif.penable;			// AP; towards peripheral
-		tx.pwrite	= vif.pwrite;			// AP; towards peripheral
-		tx.paddr	= vif.paddr;			// AP; towards peripheral
-		tx.pwdata	= vif.pwdata;			// AP; towards peripheral
-		tx.trans_err_o = vif.trans_err_o;	// AP; towards peripheral
+
+		wait(vif.pselx && vif.penable && vif.pready);
+		#1;
+	// ACCESS Phase
+		tx.pselx	= vif.pselx;
+		tx.penable	= vif.penable;
+		tx.pwrite	= vif.pwrite;
+		tx.paddr	= vif.paddr;
+		tx.pwdata	= vif.pwdata;
+		tx.trans_err_o = vif.trans_err_o;
 		tx.rdata_o	= vif.rdata_o;
+	// Printing at the end of the ACCESS phase
+		tx.print("BFM");
+
+	// Drive outputs as 0
+		@(posedge vif.pclk);
+		vif.trans_i	<= 0;
+		vif.addr_i	<= 0;
+		vif.wr_rd_i	<= 0;
+		vif.wdata_i	<= 0;
+		vif.pready	<= 0;
 	endtask
 endclass

@@ -7,7 +7,7 @@ class apb_gen;
 
 	// Run task
 	task run();
-		$display("### Inside run task of generator");
+		//$display("### Inside run task of generator");
 		case(apb_common::testcase)
 		// Scenario-1
 			"write_no_wait":begin

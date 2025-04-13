@@ -14,7 +14,7 @@ class apb_agent;
 
 	// Run task
 	task run();
-		$display("### Inside run task of agent");
+		//$display("### Inside run task of agent");
 		fork
 			gen.run();
 			bfm.run();

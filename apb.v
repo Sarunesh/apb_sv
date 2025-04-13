@@ -63,23 +63,26 @@ module apb(pclk, preset_n, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr
 	always@(*)begin
 		case(cur_state)
 			IDLE:begin
-				if(trans_i) next_state <= SETUP;
-				else next_state <= IDLE;
+				if(trans_i) next_state = SETUP;
+				else next_state = IDLE;
 			end
 			SETUP:begin
-				next_state	<= ACCESS;
+				next_state	= ACCESS;
 			end
 			ACCESS:begin
-				if(pready)begin							// Transfer happens
-					if(trans_i) next_state <= SETUP;		// Subsequent transfers
-					else next_state <= IDLE;			// No more transfers
+				if(trans_i)begin
+					if(pready)begin
+						if(pslverr) next_state = IDLE;
+						else next_state = SETUP;		// Subsequent transfers
+					end
+					else next_state = ACCESS;
 				end
 				else begin
-					next_state <= ACCESS;
+					next_state = IDLE;
 				end
 			end
 			default:begin
-				next_state <= IDLE;
+				next_state = IDLE;
 			end
 		endcase
 	end
@@ -98,17 +101,25 @@ module apb(pclk, preset_n, pready, pslverr, prdata, trans_i, addr_i, wdata_i, wr
 					pwrite	<= wr_rd_i;
 					paddr	<= addr_i;
 					if(wr_rd_i) begin
-						pwdata <= wdata_i;		// Write to peripheral
+						pwdata <= wdata_i;			// Write to peripheral
 						rdata_o <= 32'b0;
 					end
 					else pwdata <= 32'b0;
 				end
 				ACCESS:begin
-					penable <= 1'b1;
-					if(pready)begin				// pready & penable are HIGH
-						if(!wr_rd_i)
-							rdata_o <= prdata;	// Read from peripheral
-						trans_err_o <= pslverr;	// Driving the output error signal with pslverr
+					if(pselx)begin					// To avoid glitches
+						penable <= 1'b1;
+						if(pready)begin				// pready & penable are HIGH
+							trans_err_o <= pslverr;	// Driving the output error signal
+							if(!wr_rd_i && !pslverr)
+								rdata_o <= prdata;	// Read from peripheral
+							else if(!wr_rd_i && pslverr)
+								rdata_o <= 32'b0;	// Do not read when pslverr is HIGH
+							if(!trans_i)begin
+								pselx <= 0;
+								penable <= 0;
+							end
+						end
 					end
 				end
 				default:begin

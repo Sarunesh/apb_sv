@@ -7,7 +7,7 @@ class apb_sbd;
 
 	// Run task
 	task run();
-		$display("### Inside run task of scoreboard");
+		//$display("### Inside run task of scoreboard");
 		forever begin
 			tx=new();
 			mon2sbd.get(tx);

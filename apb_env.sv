@@ -11,7 +11,7 @@ class apb_env;
 
 	// Run task
 	task run();
-		$display("### Inside run task of environment");
+		//$display("### Inside run task of environment");
 		fork
 			agent.run();
 			sbd.run();

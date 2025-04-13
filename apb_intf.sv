@@ -15,12 +15,13 @@ interface apb_intf(input logic pclk, input logic preset_n);
 	logic [DATA_WIDTH-1:0] rdata_o;				// To bridge
 	logic trans_err_o;							// To bridge
 
-	/*clocking bfm_cb@(posedge pclk);
-		default input #1 output #0;
+	clocking bfm_cb@(posedge pclk);
+		default input #0 output #1;
 		output trans_i;
 		output addr_i;
 		output wdata_i;
 		output wr_rd_i;
+		output pready;
 		input penable;
 		input pselx;
 		input pwrite;
@@ -31,7 +32,7 @@ interface apb_intf(input logic pclk, input logic preset_n);
 	endclocking
 
 	clocking mon_cb@(posedge pclk);
-		default input #1;
+		default input #0;
 		input trans_i;
 		input addr_i;
 		input wdata_i;
@@ -43,8 +44,8 @@ interface apb_intf(input logic pclk, input logic preset_n);
 		input pwdata;
 		input rdata_o;
 		input trans_err_o;
-		input prdata;
+// 		input prdata;
 		input pready;
-		input pslverr;
-	endclocking*/
+// 		input pslverr;
+	endclocking
 endinterface

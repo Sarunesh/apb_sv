@@ -1,5 +1,6 @@
 `include "apb_common.sv"
 `include "apb.v"
+`include "mem.v"
 `include "apb_intf.sv"
 `include "apb_tx.sv"
 `include "apb_gen.sv"

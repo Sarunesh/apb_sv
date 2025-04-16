@@ -2,6 +2,8 @@ class apb_cov;
 	apb_tx tx;
 
 	covergroup apb_br_cg;
+		type_option.comment = "Between APB & Bridge";
+
 		TRANS_CP:coverpoint tx.trans_i{
 			bins TRANS_HIGH={1'b1};
 			bins TRANS_LOW={1'b0};
@@ -14,10 +16,14 @@ class apb_cov;
 			option.auto_bin_max=ADDR_WIDTH;
 		}
 		WDATA_CP:coverpoint tx.wdata_i{
-			option.auto_bin_max=DATA_WIDTH;
+			//option.auto_bin_max=DATA_WIDTH;
+			bins WDATA_LEGAL={[0:DATA_VALUES]};
+			illegal_bins WDATA_ILLEGAL=default;
 		}
 		RDATA_CP:coverpoint tx.rdata_o{
-			option.auto_bin_max=DATA_WIDTH;
+			//option.auto_bin_max=DATA_WIDTH;
+			bins RDATA_LEGAL={[0:DATA_VALUES]};
+			illegal_bins RDATA_ILLEGAL=default;
 		}
 		TRANS_ERR_CP:coverpoint tx.trans_err_o{
 			bins TRANS_ERR_HIGH={1'b1};
@@ -29,7 +35,9 @@ class apb_cov;
 		ADDR_X_RDATA:cross ADDR_CP, RDATA_CP;
 	endgroup
 
-	covergroup apb_sl_cg;
+	/*covergroup apb_sl_cg;
+		type_option.comment = "Between APB & Slave";
+
 		PSELX_CP:coverpoint tx.pselx{
 			bins PSELX_HIGH={1'b1};
 			bins PSELX_LOW={1'b0};
@@ -50,10 +58,14 @@ class apb_cov;
 			bins PWRITE_LOW={1'b0};
 		}
 		PWDATA_CP:coverpoint tx.pwdata{
-			option.auto_bin_max=DATA_WIDTH;
+			//option.auto_bin_max=DATA_WIDTH;
+			bins PWDATA_LEGAL={[0:DATA_VALUES]};
+			illegal_bins PWDATA_ILLEGAL=default;
 		}
 		PRDATA_CP:coverpoint tx.prdata{
-			option.auto_bin_max=DATA_WIDTH;
+			//option.auto_bin_max=DATA_WIDTH;
+			bins PRDATA_LEGAL={[0:DATA_VALUES]};
+			illegal_bins PRDATA_ILLEGAL=default;
 		}
 		PSLVERR_CP:coverpoint tx.pslverr{
 			bins PSLVERR_HIGH={1'b1};
@@ -67,13 +79,13 @@ class apb_cov;
 		PADDR_X_PWDATA:cross PADDR_CP, PWDATA_CP;
 		PADDR_X_PRDATA:cross PADDR_CP, PRDATA_CP;
 		PSLVERR_X_PENABLE_X_PREADY:cross PSLVERR_CP, PENABLE_CP, PREADY_CP;
-	endgroup
+	endgroup*/
 
 	// Constructor
 	function new();
 		tx=new();
 		apb_br_cg=new();
-		apb_sl_cg=new();
+		//apb_sl_cg=new();
 	endfunction
 
 	// Run task
@@ -81,10 +93,10 @@ class apb_cov;
 		$display("### Inside run task of coverage");
 		forever begin
 			mon2cov.get(tx);
-			fork
+			//fork
 				apb_br_cg.sample();
-				apb_sl_cg.sample();
-			join
+			//	apb_sl_cg.sample();
+			//join
 		end
 	endtask
 endclass

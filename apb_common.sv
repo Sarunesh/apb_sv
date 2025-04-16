@@ -1,5 +1,7 @@
 parameter ADDR_WIDTH = 8;
 parameter DATA_WIDTH = 8;
+parameter DEPTH = 1<<ADDR_WIDTH;
+parameter DATA_VALUES = DEPTH-1;
 
 // Mailbox
 mailbox gen2bfm=new();

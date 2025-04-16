@@ -15,19 +15,39 @@ interface apb_intf(input logic pclk, input logic preset_n);
 	logic [DATA_WIDTH-1:0] rdata_o;				// To bridge
 	logic trans_err_o;							// To bridge
 
+	// Modports
+	modport apb_mp(
+		input pclk, preset_n, trans_i, addr_i, wdata_i, wr_rd_i, pready, pslverr, prdata, 
+		output penable, pselx, pwrite, paddr, pwdata, rdata_o, trans_err_o
+	);
+
+	modport memory_mp(
+		input pclk, preset_n, penable, pselx, pwrite, paddr, pwdata, 
+		output pready, prdata, pslverr
+	);
+
+	modport bfm_mp(
+		input pclk, preset_n, pready, penable, pselx, pwrite, paddr, pwdata, rdata_o, trans_err_o, 
+		output trans_i, addr_i, wdata_i, wr_rd_i
+	);
+
+	modport mon_mp(
+		input pclk, preset_n, pready, penable, pselx, pwrite, paddr, pwdata, rdata_o, trans_err_o, trans_i, addr_i, wdata_i, wr_rd_i
+	);
+
 	clocking bfm_cb@(posedge pclk);
-		default input #0 output #1;
+		default input #1 output #1;
 		output trans_i;
 		output addr_i;
 		output wdata_i;
 		output wr_rd_i;
-		output pready;
+		input pready;
 		input penable;
 		input pselx;
 		input pwrite;
 		input paddr;
 		input pwdata;
-		input rdata_o;
+		input #0 rdata_o;
 		input trans_err_o;
 	endclocking
 
@@ -37,6 +57,7 @@ interface apb_intf(input logic pclk, input logic preset_n);
 		input addr_i;
 		input wdata_i;
 		input wr_rd_i;
+		input #1 pready;
 		input penable;
 		input pselx;
 		input pwrite;
@@ -45,7 +66,6 @@ interface apb_intf(input logic pclk, input logic preset_n);
 		input rdata_o;
 		input trans_err_o;
 // 		input prdata;
-		input pready;
 // 		input pslverr;
 	endclocking
 endinterface

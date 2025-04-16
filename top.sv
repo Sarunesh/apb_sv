@@ -3,6 +3,15 @@ module top;
 	logic pclk;
 	logic preset_n;
 
+	/*logic penable;
+	logic pselx;
+	logic pwrite;
+	logic paddr;
+	logic pwdata;
+	logic pready;
+	logic pslverr;
+	logic prdata;*/
+
 	// Interface instantiation
 	apb_intf pif(.pclk(pclk), .preset_n(preset_n));
 
@@ -24,6 +33,17 @@ module top;
 																.rdata_o	(pif.rdata_o),
 																.trans_err_o(pif.trans_err_o));
 
+	slave_memory #(.ADDR_WIDTH(ADDR_WIDTH),
+				.DATA_WIDTH(DATA_WIDTH)) memory(.mem_rdata	(pif.prdata),
+												.mem_ready	(pif.pready),
+												.mem_slverr	(pif.pslverr),
+												.mem_clk	(pif.pclk),
+												.mem_rst_n	(pif.preset_n),
+												.mem_wr_rd	(pif.pwrite),
+												.mem_valid	(pif.penable),
+												.mem_selx	(pif.pselx),
+												.mem_addr	(pif.paddr),
+												.mem_wdata	(pif.pwdata));
 	// Environment instantiation
 	apb_env env;
 
@@ -49,6 +69,6 @@ module top;
 			$display("***** TEST FAILED: Match count:%0d Mismatch count:%0d", apb_common::match_count, apb_common::mismatch_count);
 		else
 			$display("***** TEST PASSED: Match count:%0d Mismatch count:%0d", apb_common::match_count, apb_common::mismatch_count);
-		#2 $finish;
+		#10 $finish;
 	end
 endmodule

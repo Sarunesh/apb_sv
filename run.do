@@ -7,10 +7,20 @@
 
 
 # Includes code coverage too
+file mkdir logs
+file mkdir ucdb
+set timestamp [clock format [clock seconds] -format "%Y-%m-%d_%H-%M-%S"]
+set casename "multi_rand_write_read_wait"
+set runcount 5
+set log_file "./logs/${casename}__${timestamp}.log"
+
 vlog list.svh
-vopt work.top +cover=fcbest -o cycle_write_read_no_wait
-vsim -coverage cycle_write_read_no_wait +testcase=cycle_write_read_no_wait +count=3
-coverage save -onexit ./ucdb/cycle_write_read_no_wait.ucdb
+vopt work.top +cover=fcbest -o $casename
+vsim -coverage $casename \
+	-l $log_file \
+	+testcase=$casename \
+	+count=$runcount
+coverage save -onexit ./ucdb/${casename}.ucdb
 #add wave -position insertpoint sim:/top/pif/*
 do wave.do
 run -all

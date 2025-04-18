@@ -1,5 +1,5 @@
-parameter ADDR_WIDTH = 8;
-parameter DATA_WIDTH = 8;
+parameter ADDR_WIDTH = 4;
+parameter DATA_WIDTH = 4;
 parameter DEPTH = 1<<ADDR_WIDTH;
 parameter DATA_VALUES = DEPTH-1;
 

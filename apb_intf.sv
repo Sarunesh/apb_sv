@@ -16,7 +16,7 @@ interface apb_intf(input logic pclk, input logic preset_n);
 	logic trans_err_o;							// To bridge
 
 	// Modports
-	modport apb_mp(
+	/*modport apb_mp(
 		input pclk, preset_n, trans_i, addr_i, wdata_i, wr_rd_i, pready, pslverr, prdata, 
 		output penable, pselx, pwrite, paddr, pwdata, rdata_o, trans_err_o
 	);
@@ -33,7 +33,7 @@ interface apb_intf(input logic pclk, input logic preset_n);
 
 	modport mon_mp(
 		input pclk, preset_n, pready, penable, pselx, pwrite, paddr, pwdata, rdata_o, trans_err_o, trans_i, addr_i, wdata_i, wr_rd_i
-	);
+	);*/
 
 	clocking bfm_cb@(posedge pclk);
 		default input #1 output #1;
